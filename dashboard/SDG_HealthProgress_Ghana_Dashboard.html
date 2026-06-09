@@ -103,7 +103,7 @@ function renderChoropleth(){
     const reg=d.r;
     const rd=DDATA[d.n]||REGION.find(r=>r.name===reg);
     const v=rd?(rd.v!==undefined?rd.v:rd.anc):0;
-    const t=mx>mn?(v-mn)/(mx-mn):0.5;
+    const t=Math.max(0,Math.min(1,mx>mn?(v-mn)/(mx-mn):0.5));
     const fill=cs(t);
     const rc=REGION.find(r=>r.name===reg)||{};
     const tipH='<strong>'+d.n+'</strong><br><em>'+reg+'</em><br>'+PL+': '+(v||'\u2013')+(rc.lisa?'<br>LISA: '+(LISA_LABELS[rc.lisa]||rc.lisa):'');
