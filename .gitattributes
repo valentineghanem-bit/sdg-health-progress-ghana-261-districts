@@ -1,0 +1,3 @@
+# Mark generated HTML artefacts (prevents inflating language stats)
+dashboard/*.html linguist-generated
+poster/*.html linguist-generated
