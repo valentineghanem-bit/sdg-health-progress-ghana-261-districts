@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "SDG-3 Health Progress in Ghana: Spatial Analysis of 261 Districts (2000-2030 Trajectory)"
+version: 1.0.0
+date-released: 2026-06-09
+authors:
+  - family-names: Ghanem
+    given-names: Valentine Golden
+    orcid: https://orcid.org/0009-0002-8332-0220
+    affiliation: "Ghana COCOBOD Cocoa Clinic, Accra, Ghana"
+repository-code: https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts
+license: MIT
+abstract: >
+  Spatial analysis of SDG-3 (Good Health and Well-Being) progress across
+  261 Ghana districts (2000-2030). Composite index from 6 sub-indicators.
+  Moran's I=0.71, north-south gradient, XGBoost R²=0.83.
+keywords:
+  - SDG-3
+  - spatial epidemiology
+  - Ghana
+  - public health
+  - machine learning
+  - GWR
+  - LISA
