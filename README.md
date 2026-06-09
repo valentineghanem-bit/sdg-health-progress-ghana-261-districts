@@ -1,6 +1,6 @@
 # SDG-3 Health Progress in Ghana: Spatial Analysis of 261 Districts (2000–2030 Trajectory)
 
-[![CI](https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts/actions/workflows/ci.yml/badge.svg)](https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/) [![R 4.3+](https://img.shields.io/badge/R-4.3+-blue.svg)](https://www.r-project.org/) [![ORCID](https://img.shields.io/badge/ORCID-0009--0002--8332--0220-green.svg)](https://orcid.org/0009-0002-8332-0220)
+[![CI](https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts/actions/workflows/ci.yml/badge.svg)](https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/) [![R 4.3+](https://img.shields.io/badge/R-4.3+-blue.svg)](https://www.r-project.org/) [![ORCID](https://img.shields.io/badge/ORCID-0009--0002--8332--0220-green.svg)](https://orcid.org/0009-0002-8332-0220)
 
 **Author:** Valentine Golden Ghanem | Ghana COCOBOD Cocoa Clinic, Accra, Ghana
 **ORCID:** [0009-0002-8332-0220](https://orcid.org/0009-0002-8332-0220)
@@ -28,12 +28,13 @@ This study examines spatial variation in Sustainable Development Goal 3 (SDG-3) 
 
 | Method | Tool | Purpose |
 |--------|------|---------|
-| Global Moran's I | PySAL | Spatial autocorrelation of SDG index |
-| LISA | PySAL/esda | Local cluster detection (HH/LL/HL/LH) |
-| Getis-Ord Gi* | PySAL | Spatial hotspot/coldspot analysis |
-| XGBoost | scikit-learn | SDG composite index prediction |
-| SHAP | shap | Feature importance attribution |
-| GWR | GWModel (R) | Geographically weighted regression |
+| Global Moran's I (queen contiguity) | esda / libpysal (Python) | Spatial autocorrelation of SDG-3 composite index |
+| LISA (999 permutations, BH-FDR) | esda / libpysal (Python) | Local cluster delineation (HH/LL/HL/LH) |
+| Getis-Ord Gi* | esda / libpysal (Python) | Hotspot / coldspot detection |
+| XGBoost + SHAP (LOROCV) | xgboost / shap (Python) | SDG-3 composite prediction + feature attribution |
+| Random Forest (ensemble) | scikit-learn (Python) | Secondary predictor importance ranking |
+| GWR (adaptive bi-square, AICc) | GWModel / mgwr (R) | Spatially varying coefficient estimation |
+| Spatial regression diagnostics | spdep / spatialreg (R) | OLS / SLM / SEM model selection |
 
 ## 4. Data Sources
 
@@ -62,66 +63,78 @@ This study examines spatial variation in Sustainable Development Goal 3 (SDG-3) 
 
 ## 6. Repository Structure
 
-```
+\`\`\`
 sdg-health-progress-ghana-261-districts/
 ├── dashboard/
-│   └── SDG_HealthProgress_Ghana_Dashboard.html
+│   └── SDG_HealthProgress_Ghana_Dashboard.html   # Self-contained interactive HTML dashboard
 ├── poster/
-│   └── SDG_HealthProgress_Ghana_Poster.html
+│   └── SDG_HealthProgress_Ghana_Poster.html       # A0 conference poster (print-ready HTML)
 ├── scripts/
-│   ├── spatial_utils.py
-│   ├── analysis_pipeline.py
-│   └── spatial_diagnostics.R
+│   ├── spatial_utils.py          # Python: SDG index normalisation + composite construction
+│   ├── analysis_pipeline.py      # Python: main analysis entry point (LISA · GWR · XGBoost · SHAP)
+│   └── spatial_diagnostics.R     # R: spatial lag/error model selection (LM tests · GWR)
 ├── tests/
-│   └── test_pipeline.py
-├── app.py
-├── analysis.R
+│   └── test_pipeline.py          # Python: unit tests for spatial utility functions
+├── app.py                        # Python: Plotly Dash interactive application
+├── analysis.R                    # R: GWR bandwidth selection + spatialreg diagnostics
 ├── requirements.txt
 ├── CITATION.cff
 ├── LICENSE
 ├── .gitattributes
 └── .github/workflows/ci.yml
-```
+\`\`\`
 
 ## 7. Reproducibility
 
 ### 7.1 Requirements
 
-- Python 3.12+
-- R 4.3+
-- See `requirements.txt` for Python packages
+- Python 3.12 (pinned in \`requirements.txt\`)
+- R 4.3+ with packages: spdep, spatialreg, GWmodel, mgwr, dplyr (see \`analysis.R\` header)
+- Random seed: 42 throughout
+- Estimated runtime: ~5–8 minutes on a standard laptop
+- Tested on: Ubuntu 22.04 / macOS 14 / Windows 11 (CI: GitHub Actions)
 
 ### 7.2 Clone & install
 
-```bash
+\`\`\`bash
 git clone https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts.git
 cd sdg-health-progress-ghana-261-districts
 pip install -r requirements.txt
-```
+\`\`\`
 
 ### 7.3 Run the analytical pipeline
 
-```bash
-python scripts/analysis_pipeline.py
-Rscript scripts/spatial_diagnostics.R
-```
+\`\`\`bash
+python scripts/analysis_pipeline.py          # SDG composite index construction + LISA + SHAP
+Rscript scripts/spatial_diagnostics.R        # LM tests, SLM/SEM selection, GWR diagnostics
+Rscript analysis.R                           # GWR bandwidth selection + coefficient mapping
+\`\`\`
 
 ### 7.4 Run the test suite
 
-```bash
+\`\`\`bash
 python -m pytest tests/ -v
-```
+\`\`\`
 
 ### 7.5 Launch the interactive Dash application
 
-```bash
+\`\`\`bash
 python app.py
 # Open http://127.0.0.1:8050 in your browser
-```
+\`\`\`
 
 ### 7.6 Open the static HTML dashboard
 
-Open `dashboard/SDG_HealthProgress_Ghana_Dashboard.html` directly in any browser. No server required.
+\`\`\`bash
+# macOS
+open dashboard/SDG_HealthProgress_Ghana_Dashboard.html
+# Windows
+start dashboard/SDG_HealthProgress_Ghana_Dashboard.html
+# Linux
+xdg-open dashboard/SDG_HealthProgress_Ghana_Dashboard.html
+\`\`\`
+
+No server required. The file is fully self-contained.
 
 ## 8. Outputs
 
@@ -131,6 +144,8 @@ Open `dashboard/SDG_HealthProgress_Ghana_Dashboard.html` directly in any browser
 | SDG_HealthProgress_Ghana_Poster.html | Printable A0 conference poster |
 
 ## 8a. Downloadable Artefacts (HTML)
+
+Both the interactive dashboard and the conference poster are committed as self-contained HTML files — no server, no build step, no internet connection required to open them locally.
 
 | Artefact | View on GitHub | Live preview | Direct download |
 |----------|---------------|--------------|-----------------|
@@ -151,7 +166,7 @@ This study uses exclusively publicly available, anonymised, and aggregated distr
 
 Ghanem, V. G. (2026). *SDG-3 Health Progress in Ghana: Spatial Analysis of 261 Districts (2000–2030 Trajectory)*. GitHub. https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts
 
-```bibtex
+\`\`\`bibtex
 @misc{ghanem2026sdg,
   author       = {Ghanem, Valentine Golden},
   title        = {{SDG-3 Health Progress in Ghana: Spatial Analysis of 261 Districts (2000--2030 Trajectory)}},
@@ -160,9 +175,9 @@ Ghanem, V. G. (2026). *SDG-3 Health Progress in Ghana: Spatial Analysis of 261 D
   url          = {https://github.com/valentineghanem-bit/sdg-health-progress-ghana-261-districts},
   orcid        = {0009-0002-8332-0220}
 }
-```
+\`\`\`
 
-See also `CITATION.cff` for machine-readable citation metadata.
+See also \`CITATION.cff\` for machine-readable citation metadata.
 
 ## 12. License
 
